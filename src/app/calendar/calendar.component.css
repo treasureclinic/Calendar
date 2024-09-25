@@ -1,19 +1,13 @@
-.swal2-container {
-    z-index: 9999 !important;
-}
-
 /* 使用 !important 来强制覆盖样式 */
 .fc-button {
-    margin: 5px !important;
-    background-color: #B8860B !important;
+    background-color: #007bff !important;
     color: white !important;
     border: none !important;
     border-radius: 5px !important;
 }
 
 .fc-button:hover {
-    background-color: #B8860B !important;
-    color: white !important;
+    background-color: #0056b3 !important;
 }
 
 .fc-today-button {
@@ -24,11 +18,11 @@
 .fc-prev-button,
 .fc-next-button {
     margin: 5% !important;
-    background-color: #FFD700 !important;
+    background-color: #ffc107 !important;
     color: black !important;
 }
 
 .fc-button-active {
-    background-color: #FFD700 !important;
-    color: black !important;
+    background-color: #17a2b8 !important;
+    color: white !important;
 }

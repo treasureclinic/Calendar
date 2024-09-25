@@ -1,0 +1,55 @@
+<div class="grid justify-content-center align-items-center" style="height: 75vh;">
+  <div class="col-12 md:col-6 lg:col-4">
+    <div class="card">
+      <div class="text-center" >
+        <img src="img/logo.png" height="200" />
+      </div>
+      <br style="margin-top: 5%;margin-bottom: 5%;">
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="formgrid grid p-fluid">
+        <div class="field col-12">
+          <label for="userId">使用者名稱</label>
+          <p-dropdown 
+          [(ngModel)]="username"
+          [options]="usernameList" 
+          formControlName="username"
+          placeholder="Please select user"/>
+        </div>
+        <p-dialog
+        header="請輸入密碼"
+        [(visible)]="pwdDialogVisitable"
+        modal="true"
+        [closable]="true"
+        (onHide)="errorText = ''; loginForm.get('password')?.reset()">
+          <div class="field col-12">
+            <input
+            id="password"
+            type="password"
+            pInputText
+            formControlName="password"
+            placeholder="Enter your password">
+            <small
+            class="block mt-2 text-red-500"
+            *ngIf="errorText != ''">
+              {{ errorText }}
+            </small>
+          </div>
+          <button
+          type="submit"
+          pButton
+          severity="success"
+          [disabled]="!loginForm.valid"
+          style="display: flex; align-items: center; justify-content: center;">
+          <span [innerHTML]="showLoadingIcon ? htmlContent : '登入'"></span></button>
+        </p-dialog>
+        <button
+        type="button"
+        pButton
+        severity="success"
+        label="登入"
+        (click)="checkRememberPwd()"
+        [disabled]="!username"
+        class="mt-2"></button>
+      </form>
+    </div>
+  </div>
+</div>
