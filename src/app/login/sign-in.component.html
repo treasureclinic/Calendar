@@ -10,7 +10,9 @@
           <label for="userId">使用者名稱</label>
           <p-dropdown 
           [(ngModel)]="username"
-          [options]="usernameList" 
+          [options]="authService.consultantList.concat(authService.adminList)" 
+          optionValue="username"
+          optionLabel="username"
           formControlName="username"
           placeholder="Please select user"/>
         </div>

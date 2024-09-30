@@ -1,0 +1,24 @@
+<p-menubar
+[style]="{'background-color': 'white', 'border': '0', 'width':'100%'}"
+[model]="items"
+[autoDisplay]="false"
+[autoHide]="true"
+[autoZIndex]="false">
+  <ng-template pTemplate="start">
+    <img src="img/logo2.png" height="80" class="mr-2" />
+  </ng-template>
+  <ng-template pTemplate="end">
+    <div class="flex align-items-center justify-content-center">
+      <span class="w">{{ username }}</span>
+      &nbsp;&nbsp;&nbsp;
+      <button
+      pButton
+      type="button"
+      icon="pi pi-sign-out" 
+      severity="secondary"
+      (click)="signOut()"
+      [outlined]="true"
+      style="border: 0;"></button>
+    </div>
+  </ng-template>
+</p-menubar>

@@ -1,0 +1,81 @@
+<p-card [header]="'個人資料'" [style]="{'width':'80%'}">
+    <form>
+        <!-- 使用者名稱 -->
+        <div class="p-fluid">
+            <div class="field col-12">
+                <label class="md:col-2" for="username">使用者名稱</label>
+                <label class="md:col-4">
+                    <p-inputGroup>
+                        <input
+                        id="username"
+                        name="username"
+                        pInputText
+                        [(ngModel)]="user.username"
+                        placeholder="Please enter username">
+                    </p-inputGroup>
+                </label>
+            </div>
+        </div>
+        <!-- 部門別 -->
+        <div class="p-fluid">
+            <div class="field col-12">
+                <label class="md:col-2" for="doctor">職稱</label>
+                <label class="md:col-4">
+                    <p-inputGroup>
+                        <input
+                        id="department"
+                        name="department"
+                        pInputText
+                        [(ngModel)]="user.department"
+                        placeholder="Please enter department">
+                    </p-inputGroup>
+                </label>
+            </div>
+        </div>
+        <!-- 密碼 -->
+        <div class="p-fluid">
+            <div class="field col-12">
+                <label class="md:col-2" for="doctor">密碼</label>
+                <label class="md:col-4">
+                    <p-inputGroup>
+                        <input
+                        type="password"
+                        pInputText
+                        value="********"
+                        [disabled]="true">
+                        <!-- 修改密碼 -->
+                        <button
+                        type="button"
+                        pButton
+                        icon="pi pi-pencil"
+                        class="p-button-secondary"></button>
+                    </p-inputGroup>
+                </label>
+            </div>
+        </div>
+        <!-- Email -->
+        <div class="p-fluid">
+            <div class="field col-12">
+                <label class="md:col-2" for="email">Email</label>
+                <label class="md:col-4">
+                    <p-inputGroup>
+                        <input
+                        id="email"
+                        name="email"
+                        pInputText
+                        [(ngModel)]="user.email"
+                        placeholder="Please enter email">
+                    </p-inputGroup>
+                </label>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <button
+            pButton
+            type="button"
+            label="修改"
+            style="margin-right: 3%;"></button>
+        </div>
+    </form>
+</p-card>

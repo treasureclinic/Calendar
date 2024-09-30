@@ -13,7 +13,8 @@ export class User {
         public email: string,
         public department: string,
         public level: string,
-        public rememberPwd: string
+        public rememberPwd: string,
+        public sendEmail: string
     ) {}
 }
 
@@ -24,23 +25,46 @@ export class VerifyData {
     ) {}
 }
 
-export class eventData {
+export class ColorType {
     constructor(
-        eventId: number,
-        reservationStartTime: string,
-        reservationEndTime: string,
-        username: string,
-        clientname: string,
-        consumeType: string,
-        treatment: string,
-        cmslime: string,
-        consultant: string,
-        instrumentCheck: string,
-        nurse: string,
-        remark: string,
-        createDate: string,
-        createTime: string,
-        lastDate: string,
-        lastTime: string
+        public label: string,
+        public value: string,
+        public textColor: string
     ) {}
+}
+
+export class EventData {
+
+    public eventId: number;
+    public reservationDate: string;
+    public reservationStartTime: string;
+    public reservationEndTime: string;
+    public username: string;
+    public clientname: string;
+    public consumeType: string;
+    public treatment: string;
+    public cmslime: string;
+    public consultant: string;
+    public instrumentCheck: string;
+    public doctor: string;
+    public nurse: string;
+    public remark: string;
+    public createDate: string;
+    public createTime: string;
+    public lastDate: string;
+    public lastTime: string;
+    public backgroundColor: string;
+    public status: string;
+    
+
+    constructor(
+        reservationDate: string,
+        reservationStartTime: string,
+        reservationEndTime: string
+    ) {
+        this.reservationDate = reservationDate;
+        this.reservationStartTime = reservationStartTime;
+        this.reservationEndTime = reservationEndTime;
+        this.backgroundColor = ''
+    }
 }

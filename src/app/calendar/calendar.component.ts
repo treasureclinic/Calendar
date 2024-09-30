@@ -1,20 +1,25 @@
-import { Component, Input, OnInit } from "@angular/core";
-import { SwalService } from "../../service/swal.service";
-import { AuthService } from '../../service/author.service';
+import { Component, Input, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from "@angular/router";
+
+import { Service } from "../../service/service";
+import { SwalService } from "../../service/swal.service";
+import { AuthService } from '../../service/author.service';
+
 import { PrimeNgSharedModule } from "../shared.module";
 import { AngularSharedModule } from "../shared.module";
-import { User } from "../../model/model";
+import { User, EventData, ColorType } from "../../model/model";
 
 import { CalendarOptions, DateSelectArg, EventClickArg } from '@fullcalendar/core';
-import { FullCalendarModule } from '@fullcalendar/angular'; // PrimeNG 的 FullCalendar 模块
-import interactionPlugin from '@fullcalendar/interaction'; // 用于事件交互
+import { FullCalendarModule, FullCalendarComponent } from '@fullcalendar/angular'; // PrimeNG 的 FullCalendar 模块
+import interactionPlugin, { DateClickArg } from '@fullcalendar/interaction'; // 用于事件交互
 import listPlugin from '@fullcalendar/list';
 import dayGridPlugin from '@fullcalendar/daygrid'; // 月视图
 import timeGridPlugin from '@fullcalendar/timegrid'; // 周、天视图
 import zhTwLocale from '@fullcalendar/core/locales/zh-cn';  // 引入中文语言包
+import { CalendarService } from "../../service/calendar.service";
+
 
 @Component({
     selector: 'app-calendar',
@@ -29,12 +34,79 @@ import zhTwLocale from '@fullcalendar/core/locales/zh-cn';  // 引入中文语�
 })
 export class CalendarComponent implements OnInit {
 
-    ngOnInit(): void {
+    RESERVATION_STARTHOURS = 12;
+    RESERVATION_STARTMINUTES = 30;
+
+    RESERVATION_ENDHOURS = 20;
+    RESERVATION_ENDMINUTES = 30;
+    
+    constructor(
+        private fb: FormBuilder,
+        private router: Router,
+        public swalService: SwalService,
+        public authService: AuthService,
+        public calendarService: CalendarService,
+        public service: Service
+    ) {
 
     }
+
+    async ngOnInit() {
+        this.initialDateEvents();
+        this.service.getJsonData('consumeType').subscribe(
+            (result: any[]) => {
+                this.consumeTypeMap = new Map(
+                    result.map(
+                        mapResult => [mapResult.type, mapResult.value]
+                    )
+                );
+            }
+        )
+        this.service.getJsonData('colorType').subscribe(
+            (result: ColorType[]) => {
+                this.colorTypeList = result;
+                this.textColorMap = new Map(
+                    result.map(
+                        mapResult => [mapResult.value, mapResult.textColor]
+                    )
+                );
+                console.log(this.textColorMap)
+            }
+        )
+       
+        await this.getEventDataList();
+
+
+    }
+
+    formMode: string = '';
+
+    showDateDialog: boolean = false;
+    showEventFormDialog: boolean = false;
+    consumeTypeMap: Map<string, string>;
+
+    colorTypeList: ColorType[] = [];
+    textColorMap: Map<string, string>;
+
+    startTimeDropDownList: {
+        value: string,
+        label: string
+    } [];
+
+    endTimeDropDownList: {
+        value: string,
+        label: string
+    } [];
+
+    selectedDate: Date = new Date();
+    selectedDateEvents: EventData[] = [];
+    selectedEvent: EventData = new EventData('', '', '');
+    eventDataList: EventData[] = [];
+
+    @ViewChild('calendar') calendarComponent: FullCalendarComponent;
     calendarOptions: CalendarOptions = {
         // themeSystem: 'bootstrap5',
-        initialView: 'timeGridDay',
+        initialView: 'dayGridMonth',
         locale: zhTwLocale,
         plugins: [
             dayGridPlugin,
@@ -45,7 +117,7 @@ export class CalendarComponent implements OnInit {
         headerToolbar: {
             left: 'prev,next',
             center: 'title',
-            right: 'dayGridMonth,timeGridDay,listWeek'
+            right: 'dayGridMonth,listWeek'
         },
         buttonText: {
             today: '今天',
@@ -55,17 +127,8 @@ export class CalendarComponent implements OnInit {
             list: '周列表'
         },
         noEventsContent: '無行程',
-        customButtons: {
-            myCustomButton: {
-                text: '自訂按鈕',
-                click: function () {
-                    alert('你點擊了自訂按鈕!');
-                }
-            }
-        },
         height: 'auto',
         contentHeight: 500,
-        editable: true,  // 允许事件可编辑
         selectable: true,  // 允许点击选择日期
         allDaySlot: false,
         slotMinTime: '12:00:00',  // 时间范围开始
@@ -84,71 +147,228 @@ export class CalendarComponent implements OnInit {
         },
         eventClick: this.handleEventClick.bind(this),
         dateClick: this.handleDateClick.bind(this),
-        select: this.handleDateSelect.bind(this),  // 处理日期选择
-        events: [
-            {
-                id: '1',
-                title: '全日事件',
-                start: '2024-09-30',
-                allDay: true,
-                backgroundColor: '#FFD700',
-                textColor: '#000000'
-            },
-            {
-                id: '2',
-                title: '会议',
-                start: '2024-09-30T10:30:00',
-                end: '2024-09-30T12:30:00',
-                backgroundColor: '#007bff',
-                url: 'https://example.com/meeting',
-                extendedProps: {
-                    description: '定期会议',
-                    location: '会议室A'
-                }
-            }
-        ],  // 预先加载事件（可以通过 API 获取）
+        select: this.handleTimeSelect.bind(this),
+        events: [],
     };
+
+    // 直接點擊事件
     handleEventClick(clickInfo: EventClickArg) {
-        console.log(clickInfo);
+
+        this.calendarService.getEventDataById(Number(clickInfo.event.id)).subscribe(
+            (eventData: EventData )=> {
+                this.editEvent(eventData);
+            }
+        );
+
     }
 
-    handleDateClick(arg: any) {
-        const calendarApi = arg.view.calendar;  // 获取日历实例
-        calendarApi.changeView('timeGridDay', arg.dateStr);  // 切换到天视图，显示点击的日期
+    // 點擊日期
+    handleDateClick(clickInfo: DateClickArg) {
+        if (clickInfo.view.type == 'dayGridMonth') {
+
+            this.selectedDate = clickInfo.date; // p-dialog日期
+
+            this.resetSelectedDateEvents();
+
+            this.showDateDialog = true;
+        }
+    }
+
+    async resetSelectedDateEvents() {
+
+        await this.getEventDataList();
+
+        this.selectedDateEvents = this.eventDataList.slice().filter(event => event.reservationDate == this.service.dateToString(this.selectedDate));
+
+        this.selectedDateEvents.sort((a, b) => Number(a.reservationStartTime) - Number(b.reservationStartTime));
+
+    }
+
+    // 新增事件
+    newEvent(selectedDate: Date) {
+        this.formMode = '1';
+        this.selectedEvent = new EventData(
+            this.service.dateToString(selectedDate),
+            null,
+            null
+        );
+        this.authService.getCurrentUser().subscribe(
+            result => {
+                this.selectedEvent.username = result.username;
+                this.selectedEvent.consultant = result.username;
+            }
+        )
+        this.showEventFormDialog = true;
+    }
+    
+    editEvent(eventData: EventData) {
+        this.formMode = '2';
+        this.selectedEvent =  Object.assign({}, eventData);
+        console.log(eventData)
+        console.log(this.selectedEvent)
+        this.showEventFormDialog = true;
+    }
+
+    deleteEvent(eventData: EventData) {
+        this.swalService.deleteSwal().then(
+            swalresult => {
+                if (swalresult.isDenied) {
+                    this.calendarService.deleteEventData(eventData.eventId).subscribe(
+                        () => {
+                            this.swalService.successTextSwal('刪除成功');
+                            this.resetSelectedDateEvents();
+                            this.showEventFormDialog = false;
+                        },
+                        error => {
+                            this.swalService.failSwalText('刪除失敗');
+                        }
+                    )
+                }
+            }
+        )
+    }
+
+    onSubmit() {
+
+        if (!this.selectedEvent?.reservationStartTime) {
+            this.swalService.infoSwal('請選擇預約時間');
+            return;
+        }
+
+        if (!this.selectedEvent?.reservationEndTime) {
+            this.swalService.infoSwal('請選擇結束時間');
+            return;
+        }
+
+        this.swalService.confirmTextSwal('確定送出？', '確定', '取消').then(
+            swalResult => {
+              if (swalResult.isConfirmed) {
+                this.swalService.loadingSwal();
+                this.saveEventToDB(this.selectedEvent).then(
+                    () => {
+                        this.swalService.successSwal();
+                        this.showEventFormDialog = false;
+
+                        this.resetSelectedDateEvents();
+                    }
+                ).catch(
+                    () => {
+                        this.swalService.failedSwal();
+                    }
+                );
+              }
+            },
+          )
+    }
+
+    // 日期初始化
+    initialDateEvents() {
+        let startDatetime = new Date();
+        let endDatetime = new Date();
+
+        startDatetime.setHours(this.RESERVATION_STARTHOURS, this.RESERVATION_STARTMINUTES, 0); // 起始時間
+        endDatetime.setHours(this.RESERVATION_ENDHOURS, this.RESERVATION_ENDMINUTES, 0); // 結束時間
+
+        this.startTimeDropDownList = [];
+        
+        while (startDatetime < endDatetime) {
+
+            this.startTimeDropDownList.push({
+                value: 
+                    startDatetime.getHours().toString().padStart(2, '0') +
+                    startDatetime.getMinutes().toString().padStart(2, '0') +
+                    startDatetime.getSeconds().toString().padStart(2, '0'),
+                label: 
+                    startDatetime.getHours().toString().padStart(2, '0') + ":" +
+                    startDatetime.getMinutes().toString().padStart(2, '0')
+                })
+
+            startDatetime.setMinutes(startDatetime.getMinutes() + 30);
+
+        }
+
+        this.endTimeDropDownList = this.startTimeDropDownList.slice();
+        this.startTimeDropDownList.pop();
+
+    }
+
+    // 事件初始化
+    getEventDataList(): Promise<void> {
+        return new Promise<void> ((resolve, reject) => {
+            this.calendarService.getEventDatas().subscribe(
+                (eventDatas: EventData[]) => {
+                    console.log(eventDatas);
+    
+                    this.eventDataList = eventDatas;
+    
+                    let calendarApi = this.calendarComponent.getApi();
+                    calendarApi.removeAllEvents();
+                    for (let event of this.eventDataList) {
+    
+                        let clientname = event.clientname ? event.clientname : '(未命名客戶)';
+                        let treatment = event.treatment ? event.treatment : '(未命名療程)';
+    
+                        calendarApi.addEvent({
+                            id: event.eventId.toString(),
+                            title: clientname + ' : ' + treatment,
+                            start: this.service.dateTimeToCalendarTime(event.reservationDate, event.reservationStartTime), 
+                            end: this.service.dateTimeToCalendarTime(event.reservationDate, event.reservationEndTime),  
+                            allDay: false,
+                            backgroundColor: event.backgroundColor,
+                        })
+                    }
+                    resolve();
+                },
+                () => {
+                    reject();
+                }
+            )
+        });
+    }
+
+    resetDialog() {
+        this.selectedDate = new Date();
+        this.selectedDateEvents = [];
     }
 
     // 处理日期选择
-    handleDateSelect(selectInfo: DateSelectArg) {
-        console.log(selectInfo);
+    handleTimeSelect(selectInfo: DateSelectArg) {
         if (selectInfo.view.type == 'timeGridDay') {
-            const title = prompt('请输入事件标题');  // 获取事件标题
-            if (title) {
-                const calendarApi = selectInfo.view.calendar;
-                calendarApi.addEvent({
-
-                });
-                calendarApi.addEvent({ // 添加事件到日历中
-                    title,
-                    start: selectInfo.startStr,
-                    end: selectInfo.endStr,
-                    allDay: selectInfo.allDay
-                });
-
-                // this.saveEventToDB({ // 调用保存到数据库的函数
-                //     title,
-                //     start: selectInfo.startStr,
-                //     end: selectInfo.endStr,
-                //     allDay: selectInfo.allDay
-                // });
-            }
+            console.log(selectInfo);
+            
         }
+    }
 
+    setEndTime() {
+        let hours = Number(this.selectedEvent.reservationStartTime.substring(0, 2));
+        let minutes = Number(this.selectedEvent.reservationStartTime.substring(2, 4));
+        if (minutes == 30) {
+            hours ++;
+            minutes = 0;
+        } else if (minutes == 0) {
+            minutes += 30;
+        }
+        this.selectedEvent.reservationEndTime = hours.toString().padStart(2, '0') + minutes.toString().padStart(2, '0')  + '00'
     }
 
     // 模拟保存事件到数据库
-    saveEventToDB(eventData: any) {
-        // 使用 Angular 的 HttpClient 发送 POST 请求，将事件数据插入到数据库
-        // 例如，调用后端 API：this.http.post('api/events', eventData)
-        console.log('事件已保存到数据库:', eventData);
+    saveEventToDB(eventData: EventData): Promise<void> {
+        
+        return new Promise<void> ((resolve, reject) => { 
+            this.calendarService.saveEventData(eventData).subscribe(
+                (result: EventData) => {
+                    console.log('事件已保存到数据库:', this.selectedEvent);
+                    this.selectedEvent.eventId = result.eventId;
+                    resolve();
+                },
+                error => {
+                    reject(error);
+                }
+            )
+        })
+            
     }
+
+    
+
 }

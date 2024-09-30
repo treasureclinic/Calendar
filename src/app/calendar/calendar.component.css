@@ -1,28 +1,12 @@
-/* 使用 !important 来强制覆盖样式 */
-.fc-button {
-    background-color: #007bff !important;
-    color: white !important;
-    border: none !important;
-    border-radius: 5px !important;
+th {
+    text-align: center;
 }
-
-.fc-button:hover {
-    background-color: #0056b3 !important;
-}
-
-.fc-today-button {
-    background-color: #28a745 !important;
-    color: white !important;
-}
-
-.fc-prev-button,
-.fc-next-button {
-    margin: 5% !important;
-    background-color: #ffc107 !important;
-    color: black !important;
-}
-
-.fc-button-active {
-    background-color: #17a2b8 !important;
-    color: white !important;
-}
+.color-option {
+    display: inline-block;
+    width: 100%;
+    padding: 5px;
+    border-radius: 4px;
+    margin-bottom: 2px;
+    text-align: center;
+    color: #fff; /* 默认为白色文本 */
+  }

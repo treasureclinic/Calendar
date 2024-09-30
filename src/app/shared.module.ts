@@ -22,6 +22,10 @@ import { PasswordModule } from 'primeng/password';
 import { ChartModule } from 'primeng/chart';
 import { ToolbarModule } from 'primeng/toolbar';
 import { AvatarModule } from 'primeng/avatar';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 
 export const PrimeNgSharedModule = [
   CommonModule,
@@ -44,7 +48,11 @@ export const PrimeNgSharedModule = [
   PasswordModule,
   ChartModule,
   ToolbarModule,
-  AvatarModule
+  AvatarModule,
+  IconFieldModule,
+  InputIconModule,
+  InputGroupModule,
+  InputGroupAddonModule
 ];
 
 export const AngularSharedModule = [

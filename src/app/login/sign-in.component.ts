@@ -36,15 +36,9 @@ export class SignInComponent implements OnInit {
     loginForm: FormGroup;
 
     ngOnInit(): void {
-       
-        this.authService.getUserNameList().subscribe(
-            (result: string[]) => {
-                this.usernameList = result.slice();
-            }
-        )
+        
     }
 
-    usernameList: string[];
     username: string;
 
     errorText: string;
@@ -79,20 +73,16 @@ export class SignInComponent implements OnInit {
 
         this.showLoadingIcon= true;
         this.authService.loginCheckout(this.loginForm).subscribe(
-            (loginResult: string) => {
-                switch(loginResult.toString()) {
-                    case '1':
-                        this.errorText = '';
-                        this.authService.login(this.loginForm.value);
-                        this.router.navigate(['/calendar']);
-                        break;
-                    case '2':
-                        this.errorText = '密碼錯誤';
-                        break;
-                    case '9':
-                        this.errorText = '登入失敗'
-                        break;
+            (user: User) => {
+
+                if (user) {
+                    this.errorText = '';
+                    this.authService.login(user);
+                    this.router.navigate(['/calendar']);
+                } else {
+                    this.errorText = '登入失敗'
                 }
+                
                 this.showLoadingIcon= false;
             },
             (error: HttpErrorResponse) => {

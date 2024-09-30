@@ -27,7 +27,25 @@ export class AuthService {
       this.isLoggedIn.next(true);
       this.currentUser.next(user);
     }
+    this.getUserList().subscribe(
+      (userList: User[]) => {
+        this.adminList = userList.slice().filter(user => user.department == 'ADM');
+        this.consultantList = userList.slice().filter(user => user.department == 'COS');
+        this.doctorList = userList.slice().filter(user => user.department == 'DOC');
+        this.nurseList = userList.slice().filter(user => user.department == 'NUR');
+
+      },
+      error => {
+
+      }
+    )
   }
+
+  public adminList: User[] = [];
+  public consultantList: User[] = [];
+  public doctorList: User[] = [];
+  public nurseList: User[] = [];
+
 
   // 登入用戶
   login(user: User) {
@@ -52,7 +70,8 @@ export class AuthService {
 
   // 獲取當前用戶
   getCurrentUser() {
-    return this.currentUser.asObservable();
+      return this.currentUser.asObservable();
+      
   }
 
   public getUserList(): Observable<User[]> {
@@ -67,8 +86,8 @@ export class AuthService {
     return this.http.post<User>(this.service.url + '/getUserByUsername', username);
   }
 
-  public loginCheckout(loginForm: FormGroup): Observable<string> {
-    return this.http.post<string>(this.service.url + '/loginCheckout', loginForm.value);
+  public loginCheckout(loginForm: FormGroup): Observable<User> {
+    return this.http.post<User>(this.service.url + '/loginCheckout', loginForm.value);
   }
 
   public signOut(userId: string): Observable<number> {

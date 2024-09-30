@@ -1,12 +1,13 @@
 import { Component, ViewEncapsulation  } from '@angular/core';
 import { Router } from "@angular/router";
-import { MenuItem } from 'primeng/api';
+
 // import { WebSocketService } from '../service/webSocket.service';
 import { AuthService } from '../service/author.service';
 
 import { PrimeNgSharedModule } from './shared.module';
 import { AngularSharedModule } from "./shared.module";
 
+import { MenubarComponent } from './menubar/menubar.component';
 import { SignInComponent } from './login/sign-in.component';
 import { CalendarComponent } from './calendar/calendar.component';
 
@@ -23,7 +24,8 @@ import { User } from '../model/model';
   imports: [
     AngularSharedModule,
     PrimeNgSharedModule,
-    // Components
+    // Components,
+    MenubarComponent,
     SignInComponent,
     CalendarComponent
   ]
@@ -31,9 +33,8 @@ import { User } from '../model/model';
 export class AppComponent {
 
   messages: string[] = [];
-  items: MenuItem[] | undefined;
+  
 
-  username: string;
 
   constructor(
     private router: Router,
@@ -46,54 +47,10 @@ export class AppComponent {
 
     // this.webSocketService.initializeWebSocketConnection();
 
-    this.items = [
-      {
-        label: '行事曆',
-        icon: 'pi pi-fw pi-calendar',
-        routerLink: '/calendar'
-      },
-      {
-        label: '設定',
-        icon: 'pi pi-fw pi-wrench',
-        routerLink: '/'
-      },
-    ];
-    console.log(this.authService.getLoginStatus())
-    this.authService.getCurrentUser().subscribe(
-      (user: User) => {
-        if (user) {
-          this.username = user.username;
-        }
-      },
-      () => {
-      }
-    )
+    
   }
 
-  signOut(): void {
-    this.swalService.confirmTextSwal('確定登出？', '確定', '取消').then(
-      swalResult => {
-        if (swalResult.isConfirmed) {
-          this.swalService.loadingSwal();
-          this.authService.signOut(this.username).subscribe(
-            (result: number) => {
-              if (result == 1) {
-                this.authService.logout();
-                this.swalService.successTextSwal('已登出');
-                this.router.navigate(['/']);
-              } else {
-                this.swalService.failSwalText('登出失敗');
-              }
-            },
-            () => {
-              this.swalService.failSwalText('登出失敗');
-            }
-          )
-        }
-      },
-      
-    )
-  }
+  
 
   ngOnDestroy(): void {
     // this.webSocketService.disconnect();

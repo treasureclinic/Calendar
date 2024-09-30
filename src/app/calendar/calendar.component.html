@@ -1,3 +1,293 @@
 <full-calendar
-  [options]="calendarOptions"
-></full-calendar>
+#calendar
+[options]="calendarOptions"></full-calendar>
+<p-dialog [header]="service.dateToString2(selectedDate)" [style]="{'width':'90%'}" [(visible)]="showDateDialog"
+    [dismissableMask]="true" modal="true" [closable]="true" (onHide)="resetDialog()">
+    <p-table
+    [value]="selectedDateEvents"
+    styleClass="p-datatable-gridlines">
+        <ng-template pTemplate="caption">
+            <div class="text-right">
+                <button
+                type="button"
+                pButton
+                severity="primary"
+                label="新增"
+                class="mt-1"
+                    (click)="newEvent(selectedDate)">
+                </button>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th>序號</th>
+                <th>時間</th>
+                <th>客戶姓名</th>
+                <th>消耗/$</th>
+                <th>醫師</th>
+                <th>療程</th>
+                <th>CMSlim/美療</th>
+                <th>諮詢師</th>
+                <th>儀器確認</th>
+                <th>Nurse/刷手</th>
+                <th>備註</th>
+                <th>功能</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-event let-i="rowIndex" >
+            <tr [style.background]="event.backgroundColor">
+                <td class="text-center" [style.color]="textColorMap.get(event.backgroundColor)">{{ i + 1 }}</td>
+                <td class="text-center" [style.color]="textColorMap.get(event.backgroundColor)">
+                    {{
+                    event.reservationStartTime.substring(0, 2) + ':' + event.reservationStartTime.substring(2, 4) + ' ~ ' +
+                    event.reservationEndTime.substring(0, 2) + ':' + event.reservationEndTime.substring(2, 4)
+                    }}
+                </td>
+                <td class="text-center" [style.color]="textColorMap.get(event.backgroundColor)">{{ event.clientname }}</td>
+                <td class="text-center" [style.color]="textColorMap.get(event.backgroundColor)">{{ consumeTypeMap.get(event.consumeType) }}</td>
+                <td class="text-center" [style.color]="textColorMap.get(event.backgroundColor)">{{ event.doctor }}</td>
+                <td class="text-left" [style.color]="textColorMap.get(event.backgroundColor)">{{ event.treatment }}</td>
+                <td class="text-center" [style.color]="textColorMap.get(event.backgroundColor)">{{ event.cmslime }}</td>
+                <td class="text-center" [style.color]="textColorMap.get(event.backgroundColor)">{{ event.consultant }}</td>
+                <td class="text-center" [style.color]="textColorMap.get(event.backgroundColor)">{{ event.instrumentCheck }}</td>
+                <td class="text-center" [style.color]="textColorMap.get(event.backgroundColor)">{{ event.nurse }}</td>
+                <td class="text-left" [style.color]="textColorMap.get(event.backgroundColor)">{{ event.remark }}</td>
+                <td class="text-center" [style.color]="textColorMap.get(event.backgroundColor)">
+                    <button
+                    type="button"
+                    style="margin-right: 3%;"
+                    pButton
+                    severity="secondary"
+                    label="編輯"
+                    class="mt-1"
+                    (click)="editEvent(event)">
+                    </button>
+                    <button
+                    type="button"
+                    pButton
+                    severity="danger"
+                    label="刪除"
+                    class="mt-1"
+                    (click)="deleteEvent(event)">
+                    </button>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="12" class="text-center">
+                    <span class="w">無預約</span>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</p-dialog>
+<p-dialog
+[header]="service.dateToString2(selectedDate) + (formMode == '1' ? ' - 新增預約' : ' - 編輯預約')" [style]="{'width':'60%'}"
+[(visible)]="showEventFormDialog"
+modal="true"
+[closable]="true">
+    <form>
+        <!-- 預約時間 -->
+        <div class="p-fluid">
+            <div class="field col-12">
+                <label class="md:col-2" for="reservationStartTime">起始時間</label>
+                <label class="md:col-3">
+                    <p-dropdown
+                    [options]="startTimeDropDownList"
+                    id="reservationStartTime"
+                    name="reservationStartTime"
+                    [(ngModel)]="selectedEvent.reservationStartTime"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Start time"
+                    (onChange)="setEndTime()"></p-dropdown>
+                </label>
+                <label class="md:col-1"></label>
+                <label class="md:col-2" for="reservationEndTime">結束時間</label>
+                <label class="md:col-3">
+                    <p-dropdown
+                    [options]="endTimeDropDownList"
+                    id="reservationEndTime"
+                    name="reservationEndTime"
+                    [(ngModel)]="selectedEvent.reservationEndTime"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="End time"></p-dropdown>
+                </label>
+            </div>
+        </div>
+
+        <!-- 客戶姓名 & 消耗 or $ -->
+        <div class="p-fluid">
+            <div class="field col-12">
+                <label class="md:col-2" for="clientname">客戶姓名</label>
+                <input
+                class="md:col-3"
+                id="clientname"
+                name="clientname"
+                pInputText
+                [(ngModel)]="selectedEvent.clientname"
+                placeholder="Please enter clientname">
+                <label class="md:col-1"></label>
+                <label class="md:col-2" for="consumeType">類型</label>
+                <div class="md:col-2 inline-block">
+                    <p-radioButton
+                    id="consumeType1"
+                    name="consumeType1"
+                    [(ngModel)]="selectedEvent.consumeType"
+                    [value]="'1'"></p-radioButton>
+                    <label for="consumeType1" class="ml-2">消耗</label>
+                </div>
+                <div class="md:col-2 inline-block">
+                    <p-radioButton
+                    id="consumeType2"
+                    name="consumeType1"
+                    [(ngModel)]="selectedEvent.consumeType"
+                    [value]="'2'"></p-radioButton>
+                    <label for="consumeType2" class="ml-2">$</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 醫師療程 -->
+        <div class="p-fluid">
+            <div class="field col-12">
+                <label class="md:col-2" for="doctor">醫師</label>
+                <label class="md:col-3">
+                    <p-dropdown
+                    name="doctor"
+                    [options]="authService.doctorList"
+                    [(ngModel)]="selectedEvent.doctor"
+                    optionValue="username"
+                    optionLabel="username"
+                    placeholder="Choose doctor"></p-dropdown>
+                </label>
+                <label class="md:col-1"></label>
+                <label class="md:col-2" for="treatment">醫師療程</label>
+                <input
+                class="md:col-3"
+                id="treatment"
+                name="treatment"
+                pInputText
+                [(ngModel)]="selectedEvent.treatment"
+                placeholder="Please enter treatment">
+            </div>
+        </div>
+
+        <!-- CMSlim/美療 -->
+        <div class="p-fluid">
+            <div class="field col-12">
+                <label class="md:col-2" for="consultant">諮詢師</label>
+                <label class="md:col-3">
+                    <p-dropdown
+                    name="consultant"
+                    [options]="authService.consultantList.concat(authService.adminList)"
+                    [(ngModel)]="selectedEvent.consultant"
+                    optionValue="username"
+                    optionLabel="username"
+                    placeholder="Choose consultant"></p-dropdown>
+                </label>
+                <label class="md:col-1"></label>
+                <label class="md:col-2" for="cmslime">CMSlim/美療</label>
+                <input
+                class="md:col-3"
+                id="cmslime"
+                name="cmslime"
+                pInputText
+                [(ngModel)]="selectedEvent.cmslime"
+                placeholder="Please enter CMSlim/美療">
+            </div>
+        </div>
+
+
+        <!-- 儀器確認 & Nurse/刷手 -->
+        <div class="p-fluid">
+            <div class="field col-12">
+                <label class="md:col-2" for="nurse">Nurse/刷手</label>
+                <label class="md:col-3">
+                    <p-dropdown
+                    name="nurse"
+                    [options]="authService.nurseList"
+                    [(ngModel)]="selectedEvent.nurse"
+                    optionValue="username"
+                    optionLabel="username"
+                    placeholder="Choose nurse"></p-dropdown>
+                </label>
+                <label class="md:col-1"></label>
+                <label class="md:col-2" for="instrumentCheck">儀器確認</label>
+                <input
+                class="md:col-3"
+                id="instrumentCheck"
+                name="instrumentCheck"
+                pInputText
+                [(ngModel)]="selectedEvent.instrumentCheck"
+                placeholder="Please enter instrument">
+            </div>
+        </div>
+
+        <!-- 備註-->
+        <div class="p-fluid field col-12">
+            <p-table [value]="[{}]" [style]="{'background-color': 'white'}">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <td class="md:col-2 text-left">備註</td>
+                        <td class="md:col-10">
+                            <textarea
+                            class="md:col-11"
+                            rows="5" cols="30"
+                            id="remark" name="remark"
+                            pInputTextarea
+                            placeholder="Please remark something..."
+                            [(ngModel)]="selectedEvent.remark"></textarea>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+        <div class="p-fluid">
+            <div class="field col-12">
+                <label class="md:col-2" for="backgroundColor">背景顏色</label>
+                <label class="md:col-3">
+                    <p-dropdown
+                    name="backgroundColor"
+                    [options]="colorTypeList"
+                    [(ngModel)]="selectedEvent.backgroundColor"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Choose color">
+                        <!-- 自定义选中时显示的颜色 -->
+                        <ng-template let-option pTemplate="selectedItem">
+                          <div class="color-option" [style.background]="option.value" [style.color]="option.textColor">
+                            <span>{{ option.label }}</span>
+                          </div>
+                        </ng-template>
+                      
+                        <!-- 自定义下拉列表中的颜色 -->
+                        <ng-template let-option pTemplate="item">
+                          <div class="color-option" [style.background]="option.value" [style.color]="option.textColor">
+                            <span>{{ option.label }}</span>
+                          </div>
+                        </ng-template>
+                    </p-dropdown>
+                      
+                </label>
+            </div>
+        </div>
+        <div class="text-center">
+            <button
+            pButton
+            type="button"
+            label="提交"
+            style="margin-right: 3%;"
+            (click)="onSubmit()"></button>
+            <button
+            *ngIf="formMode != '1'"
+            pButton
+            type="button"
+            severity="danger"
+            label="刪除"
+            (click)="deleteEvent(selectedEvent);"></button>
+        </div>
+    </form>
+</p-dialog>
