@@ -1,0 +1,42 @@
+[
+    {
+        "label": "White",
+        "value": "white",
+        "textColor": "#000000"
+    },
+    {
+        "label": "Red",
+        "value": "#FF0000",
+        "textColor": "#FFFFFF"
+    },
+    {
+        "label": "Orange",
+        "value": "#FFA500",
+        "textColor": "#000000"
+    },
+    {
+        "label": "Yellow",
+        "value": "#FFFF00",
+        "textColor": "#000000"
+    },
+    {
+        "label": "Green",
+        "value": "#008000",
+        "textColor": "#FFFFFF"
+    },
+    {
+        "label": "Blue",
+        "value": "#0000FF",
+        "textColor": "#FFFFFF"
+    },
+    {
+        "label": "Indigo",
+        "value": "#4B0082",
+        "textColor": "#FFFFFF"
+    },
+    {
+        "label": "Violet",
+        "value": "#EE82EE",
+        "textColor": "#000000"
+    }
+]
