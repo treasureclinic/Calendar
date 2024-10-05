@@ -1,13 +1,14 @@
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
+import { Router } from "@angular/router";
+import { MenuItem } from 'primeng/api';
+
 import { SwalService } from "../../service/swal.service";
 import { AuthService } from '../../service/author.service';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { HttpErrorResponse } from '@angular/common/http';
-import { Router } from "@angular/router";
+
 import { PrimeNgSharedModule } from "../shared.module";
 import { AngularSharedModule } from "../shared.module";
 import { User } from "../../model/model";
-import { MenuItem } from 'primeng/api';
+
 
 @Component({
     selector: 'app-menubar',
@@ -22,7 +23,6 @@ import { MenuItem } from 'primeng/api';
 export class MenubarComponent implements OnInit {
 
     constructor(
-        private fb: FormBuilder,
         private router: Router,
         public swalService: SwalService,
         public authService: AuthService
@@ -42,7 +42,7 @@ export class MenubarComponent implements OnInit {
                         {
                             label: '行事曆',
                             icon: 'pi pi-fw pi-calendar',
-                            routerLink: '/calendar'
+                            routerLink: '/calendar',
                         },
                         {
                             label: '設定',
@@ -83,6 +83,7 @@ export class MenubarComponent implements OnInit {
                                 this.authService.logout();
                                 this.swalService.successTextSwal('已登出');
                                 this.router.navigate(['/']);
+                                window.location.reload();
                             } else {
                                 this.swalService.failSwalText('登出失敗');
                             }
@@ -96,5 +97,6 @@ export class MenubarComponent implements OnInit {
         )
     }
 
+        
 
 }

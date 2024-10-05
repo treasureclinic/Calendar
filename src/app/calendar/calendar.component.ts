@@ -1,25 +1,19 @@
-import { Component, Input, OnInit, ViewChild } from "@angular/core";
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { HttpErrorResponse } from '@angular/common/http';
-import { Router } from "@angular/router";
+import { Component, OnInit, ViewChild } from "@angular/core";
 
 import { Service } from "../../service/service";
 import { SwalService } from "../../service/swal.service";
 import { AuthService } from '../../service/author.service';
+import { CalendarService } from "../../service/calendar.service";
 
 import { PrimeNgSharedModule } from "../shared.module";
 import { AngularSharedModule } from "../shared.module";
-import { User, EventData, ColorType } from "../../model/model";
+import { EventData, ColorType } from "../../model/model";
 
 import { CalendarOptions, DateSelectArg, EventClickArg } from '@fullcalendar/core';
 import { FullCalendarModule, FullCalendarComponent } from '@fullcalendar/angular'; // PrimeNG 的 FullCalendar 模块
 import interactionPlugin, { DateClickArg } from '@fullcalendar/interaction'; // 用于事件交互
-import listPlugin from '@fullcalendar/list';
 import dayGridPlugin from '@fullcalendar/daygrid'; // 月视图
-import timeGridPlugin from '@fullcalendar/timegrid'; // 周、天视图
 import zhTwLocale from '@fullcalendar/core/locales/zh-cn';  // 引入中文语言包
-import { CalendarService } from "../../service/calendar.service";
-
 
 @Component({
     selector: 'app-calendar',
@@ -41,8 +35,6 @@ export class CalendarComponent implements OnInit {
     RESERVATION_ENDMINUTES = 30;
     
     constructor(
-        private fb: FormBuilder,
-        private router: Router,
         public swalService: SwalService,
         public authService: AuthService,
         public calendarService: CalendarService,
@@ -52,6 +44,7 @@ export class CalendarComponent implements OnInit {
     }
 
     async ngOnInit() {
+        
         this.initialDateEvents();
         this.service.getJsonData('consumeType').subscribe(
             (result: any[]) => {
@@ -61,7 +54,7 @@ export class CalendarComponent implements OnInit {
                     )
                 );
             }
-        )
+        );
         this.service.getJsonData('colorType').subscribe(
             (result: ColorType[]) => {
                 this.colorTypeList = result;
@@ -72,11 +65,9 @@ export class CalendarComponent implements OnInit {
                 );
                 console.log(this.textColorMap)
             }
-        )
+        );
        
         await this.getEventDataList();
-
-
     }
 
     formMode: string = '';
@@ -110,14 +101,12 @@ export class CalendarComponent implements OnInit {
         locale: zhTwLocale,
         plugins: [
             dayGridPlugin,
-            timeGridPlugin,
             interactionPlugin,
-            listPlugin
         ],  // 添加日历插件
         headerToolbar: {
             left: 'prev,next',
             center: 'title',
-            right: 'dayGridMonth,listWeek'
+            right: 'dayGridMonth'
         },
         buttonText: {
             today: '今天',
@@ -126,11 +115,9 @@ export class CalendarComponent implements OnInit {
             day: '日視圖',
             list: '周列表'
         },
-        noEventsContent: '無行程',
         height: 'auto',
         contentHeight: 500,
         selectable: true,  // 允许点击选择日期
-        allDaySlot: false,
         slotMinTime: '12:00:00',  // 时间范围开始
         slotMaxTime: '20:00:00',  // 时间范围结束
         slotDuration: '00:30:00',  // 每半小时一栏

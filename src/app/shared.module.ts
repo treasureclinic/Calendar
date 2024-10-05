@@ -26,7 +26,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-
+import { FloatLabelModule } from 'primeng/floatlabel';
 export const PrimeNgSharedModule = [
   CommonModule,
   ButtonModule,
@@ -52,7 +52,8 @@ export const PrimeNgSharedModule = [
   IconFieldModule,
   InputIconModule,
   InputGroupModule,
-  InputGroupAddonModule
+  InputGroupAddonModule,
+  FloatLabelModule
 ];
 
 export const AngularSharedModule = [

@@ -1,0 +1,236 @@
+<p-card [header]="'使用者管理'">
+    <p-table
+    [value]="userList"
+    styleClass="p-datatable-gridlines">
+        <ng-template pTemplate="caption">
+            <div class="text-right">
+                <button
+                type="button"
+                pButton
+                severity="primary"
+                label="新增"
+                class="mt-1"
+                (click)="newUser()">
+                </button>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="text-align: center;">序號</th>
+                <th style="text-align: center;">使用者名稱</th>
+                <th style="text-align: center;">部門別</th>
+                <th style="text-align: center;">層級</th>
+                <th style="text-align: center;">Email</th>
+                <th style="text-align: center;">記住密碼</th>
+                <th style="text-align: center;">Email通知</th>
+                <th style="text-align: center;">功能</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-employee let-i="rowIndex" >
+            <tr>
+                <td class="text-center">{{ i + 1 }}</td>
+                <td class="text-center">{{ employee.username }}</td>
+                <td>
+                    <p-dropdown
+                    [style]="{'width':'95%'}"
+                    [options]="departmentTypeList"
+                    [(ngModel)]="employee.department"
+                    appendTo="body" 
+                    optionLabel="type"
+                    optionValue="value"
+                    (onChange)="save(employee)"></p-dropdown>
+                </td>
+                <td>
+                    <p-dropdown
+                    [style]="{'width':'95%'}"
+                    [options]="userLevelList"
+                    [(ngModel)]="employee.level"
+                    appendTo="body" 
+                    optionLabel="type"
+                    optionValue="value"
+                    (onChange)="save(employee)"></p-dropdown>
+                </td>
+                <td class="text-center">{{ employee.email }}</td>
+                <td class="text-center">{{ employee.rememberPwd == '1' ? "V" : "" }}</td>
+                <td class="text-center">{{ employee.sendEmail == '1' ? "V" : "" }}</td>
+                <td class="text-center">
+                    <button
+                    *ngIf="employee.status == '0'"
+                    type="button"
+                    style="margin-right: 3%;"
+                    pButton
+                    severity="secondary"
+                    (click)="resetPwd(employee)"
+                    label="密碼重設"
+                    class="mt-1">
+                    </button>
+                    <button
+                    *ngIf="employee.status == '0'"
+                    type="button"
+                    style="margin-right: 3%; color: white;"
+                    pButton
+                    severity="danger"
+                    (click)="changeUserStatus(employee, '9')"
+                    label="停用"
+                    class="mt-1">
+                    </button>
+                    <button
+                    *ngIf="employee.status == '9'"
+                    type="button"
+                    style="margin-right: 3%;"
+                    pButton
+                    severity="success"
+                    (click)="changeUserStatus(employee, '0')"
+                    label="啟用"
+                    class="mt-1">
+                    </button>
+                    <button
+                    *ngIf="employee.status == '9'"
+                    type="button"
+                    pButton
+                    severity="danger"
+                    (click)="deleteUser(employee)"
+                    label="刪除"
+                    class="mt-1">
+                    </button>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="12" class="text-center">
+                    <span class="w">無人員名單</span>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</p-card>
+<p-dialog
+[header]="'新增人員'"
+[(visible)]="showNewUserDialog"
+[style]="{'width':'65%'}"
+modal="true"
+[closable]="true"
+(onHide)="showNewUserDialog = false">
+    <form #form1="ngForm">
+        <!-- 使用者名稱 -->
+        <!-- 部門別 -->
+        <div class="p-fluid">
+            <div class="field col-12">
+                <label class="md:col-1"></label>
+                <label class="md:col-1" for="username">使用者名稱</label>
+                <label class="md:col-3">
+                    <p-inputGroup>
+                        <input
+                        #username
+                        id="username"
+                        name="username"
+                        pInputText
+                        appNoSpace
+                        [(ngModel)]="user.username"
+                        placeholder="Please enter username"
+                        maxlength="20">
+                    </p-inputGroup>
+                </label>
+                <label class="md:col-1"></label>
+                <label class="md:col-1" for="doctor">部門別</label>
+                <label class="md:col-3">
+                    <p-dropdown
+                    [options]="departmentTypeList"
+                    id="department"
+                    name="department"
+                    [(ngModel)]="user.department"
+                    placeholder="Please choose department"
+                    optionLabel="type"
+                    optionValue="value"></p-dropdown>
+                </label>
+            </div>
+        </div>
+        <!-- 密碼 -->
+        <!-- 層級 -->
+        <div class="p-fluid">
+            <div class="field col-12">
+                <label class="md:col-1"></label>
+                <label class="md:col-1" for="email">Email</label>
+                <label class="md:col-3">
+                    <p-inputGroup>
+                        <input
+                        #email
+                        id="email"
+                        name="email"
+                        pInputText
+                        appNoSpace
+                        [(ngModel)]="user.email"
+                        placeholder="Please enter email">
+                    </p-inputGroup>
+                </label>
+                <label class="md:col-1"></label>
+                <label class="md:col-1" for="level">層級</label>
+                <label class="md:col-3">
+                    <p-dropdown
+                    [options]="userLevelList"
+                    id="level"
+                    name="level"
+                    [(ngModel)]="user.level"
+                    placeholder="Please choose level"
+                    optionLabel="type"
+                    optionValue="value"></p-dropdown>
+                </label>
+            </div>
+        </div>
+        <!-- Email -->
+        <!-- 記住密碼 -->
+        <div class="p-fluid">
+            <div class="field col-12">
+                <label class="md:col-1"></label>
+                <label class="md:col-1" for="rememberPwd">記住密碼</label>
+                <div class="md:col-1 inline-block">
+                    <p-radioButton
+                    id="rememberPwd1"
+                    name="rememberPwd1"
+                    [(ngModel)]="user.rememberPwd"
+                    [value]="'1'"></p-radioButton>
+                    <label for="rememberPwd1" class="ml-2">是</label>
+                </div>
+                <div class="md:col-2 inline-block">
+                    <p-radioButton
+                    id="rememberPwd2"
+                    name="rememberPwd2"
+                    [(ngModel)]="user.rememberPwd"
+                    [value]="'0'"></p-radioButton>
+                    <label for="rememberPwd2" class="ml-2">否</label>
+                </div>
+            </div>
+        </div>
+        <!-- Email通知 -->
+        <div class="p-fluid">
+            <div class="field col-12">
+                <label class="md:col-1"></label>
+                <label class="md:col-1" for="sendEmail">Email通知</label>
+                <div class="md:col-1 inline-block">
+                    <p-radioButton
+                    id="sendEmail1"
+                    name="sendEmail1"
+                    [(ngModel)]="user.sendEmail"
+                    [value]="'1'"></p-radioButton>
+                    <label for="sendEmail1" class="ml-2">是</label>
+                </div>
+                <div class="md:col-2 inline-block">
+                    <p-radioButton
+                    id="sendEmail2"
+                    name="sendEmail2"
+                    [(ngModel)]="user.sendEmail"
+                    [value]="'0'"></p-radioButton>
+                    <label for="sendEmail2" class="ml-2">否</label>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="text-center">
+        <button
+        pButton
+        type="button"
+        label="送出"
+        (click)="checkUsername(user) ? save(user) : ''"></button>
+    </div>
+</p-dialog>

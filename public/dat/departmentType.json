@@ -1,0 +1,18 @@
+[
+   {
+       "type":"管理部",
+       "value":"ADM"
+   },
+   {
+       "type":"諮詢師",
+       "value":"COS"
+   },
+   {
+       "type":"醫師",
+       "value":"DOC"
+   },
+   {
+       "type":"護士/刷手",
+       "value":"NUR"
+   }
+]

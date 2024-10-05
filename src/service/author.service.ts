@@ -29,10 +29,16 @@ export class AuthService {
     }
     this.getUserList().subscribe(
       (userList: User[]) => {
-        this.adminList = userList.slice().filter(user => user.department == 'ADM');
-        this.consultantList = userList.slice().filter(user => user.department == 'COS');
-        this.doctorList = userList.slice().filter(user => user.department == 'DOC');
-        this.nurseList = userList.slice().filter(user => user.department == 'NUR');
+        this.adminList = userList.slice().filter(user => user.department == 'ADM' && user.status == '0');
+        this.consultantList = userList.slice().filter(user => user.department == 'COS' && user.status == '0');
+        this.doctorList = userList.slice().filter(user => user.department == 'DOC' && user.status == '0');
+        this.nurseList = userList.slice().filter(user => user.department == 'NUR' && user.status == '0');
+
+        this.allUserList = userList.slice();
+        this.allAdminList = userList.slice().filter(user => user.department == 'ADM');
+        this.allConsultantList = userList.slice().filter(user => user.department == 'COS');
+        this.allDoctorList = userList.slice().filter(user => user.department == 'DOC');
+        this.allNurseList = userList.slice().filter(user => user.department == 'NUR');
 
       },
       error => {
@@ -41,11 +47,17 @@ export class AuthService {
     )
   }
 
+  public allUserList: User[] = [];
+
   public adminList: User[] = [];
   public consultantList: User[] = [];
   public doctorList: User[] = [];
   public nurseList: User[] = [];
 
+  public allAdminList: User[] = [];
+  public allConsultantList: User[] = [];
+  public allDoctorList: User[] = [];
+  public allNurseList: User[] = [];
 
   // 登入用戶
   login(user: User) {
@@ -88,6 +100,30 @@ export class AuthService {
 
   public loginCheckout(loginForm: FormGroup): Observable<User> {
     return this.http.post<User>(this.service.url + '/loginCheckout', loginForm.value);
+  }
+
+  public checkPwd(data: {username: string, password: string}) {
+    return this.http.post<boolean>(this.service.url + '/checkPwd', data);
+  }
+
+  public changePwd(data: {username: string, password: string}) {
+    return this.http.post<boolean>(this.service.url + '/changePwd', data);
+  }
+
+  public resetPwd(user: User) {
+    return this.http.post<boolean>(this.service.url + '/resetPwd', user);
+  }
+
+  public saveUserData(data: {username: string, param: string, type: string}) {
+    return this.http.post<boolean>(this.service.url + '/saveUserData', data);
+  }
+
+  public saveUser(user: User) {
+    return this.http.post<boolean>(this.service.url + '/saveUser', user);
+  }
+
+  public deleteUser(user: User) {
+    return this.http.post<boolean>(this.service.url + '/deleteUser', user);
   }
 
   public signOut(userId: string): Observable<number> {

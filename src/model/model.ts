@@ -14,7 +14,8 @@ export class User {
         public department: string,
         public level: string,
         public rememberPwd: string,
-        public sendEmail: string
+        public sendEmail: string,
+        public status: string
     ) {}
 }
 
@@ -22,6 +23,13 @@ export class VerifyData {
     constructor(
         public id: string,
         public result: string
+    ) {}
+}
+
+export class Type {
+    constructor(
+        public type: string,
+        public value: string
     ) {}
 }
 

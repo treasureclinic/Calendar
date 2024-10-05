@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { SwalService } from "../../service/swal.service";
 import { AuthService } from '../../service/author.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -56,7 +56,7 @@ export class SignInComponent implements OnInit {
 
                     this.authService.login(user); // 記住密碼直接登入
                     this.router.navigate(['/calendar']);
-                } else if (user.rememberPwd == '0') {
+                } else {
 
                     this.pwdDialogVisitable = true; // 彈出輸入密碼視窗
 

@@ -1,7 +1,5 @@
 import { Component, ViewEncapsulation  } from '@angular/core';
-import { Router } from "@angular/router";
 
-// import { WebSocketService } from '../service/webSocket.service';
 import { AuthService } from '../service/author.service';
 
 import { PrimeNgSharedModule } from './shared.module';
@@ -9,11 +7,6 @@ import { AngularSharedModule } from "./shared.module";
 
 import { MenubarComponent } from './menubar/menubar.component';
 import { SignInComponent } from './login/sign-in.component';
-import { CalendarComponent } from './calendar/calendar.component';
-
-import { SwalService } from '../service/swal.service';
-import { User } from '../model/model';
-
 
 @Component({
   selector: 'app-root',
@@ -26,34 +19,17 @@ import { User } from '../model/model';
     PrimeNgSharedModule,
     // Components,
     MenubarComponent,
-    SignInComponent,
-    CalendarComponent
+    SignInComponent
   ]
 })
 export class AppComponent {
 
-  messages: string[] = [];
-  
-
-
   constructor(
-    private router: Router,
-    // public webSocketService: WebSocketService,
-    public authService: AuthService,
-    public swalService: SwalService
-  ) { }
+    public authService: AuthService
+  ) {}
 
   ngOnInit() {
-
-    // this.webSocketService.initializeWebSocketConnection();
-
     
-  }
-
-  
-
-  ngOnDestroy(): void {
-    // this.webSocketService.disconnect();
   }
 
 }

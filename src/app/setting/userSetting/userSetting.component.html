@@ -1,41 +1,53 @@
-<p-card [header]="'個人資料'" [style]="{'width':'80%'}">
-    <form>
+<p-card [header]="'個人資料與設定'">
+    <form #form1="ngForm">
         <!-- 使用者名稱 -->
+         <!-- 部門別 -->
         <div class="p-fluid">
             <div class="field col-12">
-                <label class="md:col-2" for="username">使用者名稱</label>
+                <label class="md:col-1"></label>
+                <label class="md:col-1" for="username">使用者名稱</label>
                 <label class="md:col-4">
                     <p-inputGroup>
                         <input
+                        #username
                         id="username"
                         name="username"
                         pInputText
+                        appNoSpace
                         [(ngModel)]="user.username"
-                        placeholder="Please enter username">
+                        placeholder="Please enter username"
+                        disabled="true"
+                        maxlength="20"
+                        (blur)="save(user.username, 'username'); username.disabled = true"
+                        (focus)="usernameTemp = user.username">
+                        <button
+                        type="button"
+                        pButton
+                        icon="pi pi-pencil"
+                        (click)="username.disabled = false; username.focus()"
+                        class="p-button-secondary"></button>
                     </p-inputGroup>
                 </label>
-            </div>
-        </div>
-        <!-- 部門別 -->
-        <div class="p-fluid">
-            <div class="field col-12">
-                <label class="md:col-2" for="doctor">職稱</label>
+                <label class="md:col-1"></label>
+                <label class="md:col-1" for="doctor">部門別</label>
                 <label class="md:col-4">
-                    <p-inputGroup>
-                        <input
-                        id="department"
-                        name="department"
-                        pInputText
-                        [(ngModel)]="user.department"
-                        placeholder="Please enter department">
-                    </p-inputGroup>
+                    <p-dropdown
+                    [options]="departmentTypeList"
+                    id="department"
+                    name="department"
+                    [(ngModel)]="user.department"
+                    optionLabel="type"
+                    optionValue="value"
+                    [disabled]="true"></p-dropdown>
                 </label>
             </div>
         </div>
         <!-- 密碼 -->
+        <!-- 層級 -->
         <div class="p-fluid">
             <div class="field col-12">
-                <label class="md:col-2" for="doctor">密碼</label>
+                <label class="md:col-1"></label>
+                <label class="md:col-1">密碼</label>
                 <label class="md:col-4">
                     <p-inputGroup>
                         <input
@@ -48,34 +60,164 @@
                         type="button"
                         pButton
                         icon="pi pi-pencil"
+                        (click)="editPwd(); oldPasswordElement.focus()"
                         class="p-button-secondary"></button>
                     </p-inputGroup>
+                </label>
+                <label class="md:col-1"></label>
+                <label class="md:col-1" for="level">層級</label>
+                <label class="md:col-4">
+                    <p-dropdown
+                    [options]="userLevelList"
+                    id="level"
+                    name="level"
+                    [(ngModel)]="user.level"
+                    optionLabel="type"
+                    optionValue="value"
+                    [disabled]="true"></p-dropdown>
                 </label>
             </div>
         </div>
         <!-- Email -->
+         <!-- 記住密碼 -->
         <div class="p-fluid">
             <div class="field col-12">
-                <label class="md:col-2" for="email">Email</label>
+                <label class="md:col-1"></label>
+                <label class="md:col-1" for="email">Email</label>
                 <label class="md:col-4">
                     <p-inputGroup>
                         <input
+                        #email
                         id="email"
                         name="email"
                         pInputText
+                        appNoSpace
                         [(ngModel)]="user.email"
-                        placeholder="Please enter email">
+                        placeholder="Please enter email"
+                        disabled="true"
+                        (focus)="emailTemp = user.email"
+                        (blur)="save(user.email, 'email'); email.disabled = true">
+                        <button
+                        type="button"
+                        pButton
+                        icon="pi pi-pencil"
+                        (click)="email.disabled = false; email.focus()"
+                        class="p-button-secondary"></button>
                     </p-inputGroup>
                 </label>
+                <label class="md:col-1"></label>
+                <label class="md:col-1" for="rememberPwd">記住密碼</label>
+                <div class="md:col-1 inline-block">
+                    <p-radioButton
+                    id="rememberPwd1"
+                    name="rememberPwd1"
+                    [(ngModel)]="user.rememberPwd"
+                    (onClick)="save(user.rememberPwd, 'rememberPwd')"
+                    [value]="'1'"></p-radioButton>
+                    <label for="rememberPwd1" class="ml-2">是</label>
+                </div>
+                <div class="md:col-2 inline-block">
+                    <p-radioButton
+                    id="rememberPwd2"
+                    name="rememberPwd2"
+                    [(ngModel)]="user.rememberPwd"
+                    (onClick)="save(user.rememberPwd, 'rememberPwd')"
+                    [value]="'0'"></p-radioButton>
+                    <label for="rememberPwd2" class="ml-2">否</label>
+                </div>
             </div>
         </div>
-
-        <div class="text-center">
-            <button
-            pButton
-            type="button"
-            label="修改"
-            style="margin-right: 3%;"></button>
+         <!-- Email通知 -->
+         <div class="p-fluid">
+            <div class="field col-12">
+                <label class="md:col-7"></label>
+                <label class="md:col-1" for="sendEmail">Email通知</label>
+                <div class="md:col-1 inline-block">
+                    <p-radioButton
+                    id="sendEmail1"
+                    name="sendEmail1"
+                    [(ngModel)]="user.sendEmail"
+                    (onClick)="save(user.sendEmail, 'sendEmail')"
+                    [value]="'1'"></p-radioButton>
+                    <label for="sendEmail1" class="ml-2">是</label>
+                </div>
+                <div class="md:col-2 inline-block">
+                    <p-radioButton
+                    id="sendEmail2"
+                    name="sendEmail2"
+                    [(ngModel)]="user.sendEmail"
+                    (onClick)="save(user.sendEmail, 'sendEmail')"
+                    [value]="'0'"></p-radioButton>
+                    <label for="sendEmail2" class="ml-2">否</label>
+                </div>
+            </div>
         </div>
     </form>
 </p-card>
+<p-dialog
+[header]="'更改密碼'"
+[(visible)]="showPwdDialog"
+[style]="{'width':'20%'}"
+modal="true"
+[closable]="true">
+    <form #form2="ngForm">
+        <!-- 修改密碼 -->
+        <div class="p-fluid">
+            <div class="field col-12">
+                <p-iconField iconPosition="right">
+                    <p-inputIcon styleClass="pi pi-check" *ngIf="showNewPwdInput"/>
+                    <input
+                    id="oldPassword"
+                    name="oldPassword"
+                    type="password"
+                    #oldPasswordElement
+                    pInputText
+                    appNoSpace
+                    [(ngModel)]="oldPassword"
+                    placeholder="請輸入舊密碼"
+                    [disabled]="showNewPwdInput">
+                </p-iconField>
+            </div>
+            <div class="field col-12" *ngIf="showNewPwdInput">
+                <p-inputGroup>
+                    <input
+                    id="newPassword"
+                    name="newPassword"
+                    type="password"
+                    #newPasswordElement
+                    pInputText
+                    appNoSpace
+                    appPasswordValidator
+                    [(ngModel)]="newPassword"
+                    placeholder="請輸入新密碼">
+                </p-inputGroup>
+            </div>
+            <div *ngIf="form2.controls['newPassword']?.errors?.['invalidPassword']">
+                <span class="w" style="color: red;">必須包含一個字母、一個數字且至少為 8 位。</span>
+            </div>
+            <div class="field col-12" *ngIf="showNewPwdInput">
+                <p-inputGroup>
+                    <input
+                    id="newPasswordCheck"
+                    name="newPasswordCheck"
+                    type="password"
+                    #newPasswordElementCheck
+                    pInputText
+                    appNoSpace
+                    appPasswordValidator
+                    [(ngModel)]="newPasswordCheck"
+                    placeholder="確認新密碼">
+                </p-inputGroup>
+            </div>
+        </div>
+        <div class="p-fluid">
+            <div class="field col-12">
+                <button
+                pButton
+                type="submit"
+                (click)="showNewPwdInput? changePwd() : checkPwd()"
+                label="送出"></button>
+            </div>
+        </div>
+    </form>
+</p-dialog>
